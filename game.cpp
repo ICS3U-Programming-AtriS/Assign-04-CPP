@@ -4,6 +4,7 @@
 // Date: MAY 3, 2025
 // King of the Ants
 
+#include <unistd.h>
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
@@ -84,7 +85,8 @@ void Grey(std::string msg = "") {
     // APPLY COLOR
     std::cout << GREY;
     // PRINT MESSAGE
-    std::cout << msg;
+    // With a flush, since I am using it in Pause()
+    std::cout << msg << std::flush;
 }
 
 void Orange(std::string msg = "") {
@@ -133,6 +135,31 @@ void ClearTerminal() {
     std::system("clear");
 }
 
+// Function for pausing the terminal
+// Used for allowing the read to read the effects
+// Also acts as a downtime between events
+void Pause() {
+    Grey("Continue in [");
+    // 2 seconds long[1.5 + 0.5]
+    for (int halfSecond = 0; halfSecond < 3; halfSecond++) {
+        // Halt the program for half a second
+        // usleep uses microseconds
+        usleep(500000);  // 500,000 microseconds = 0.5 seconds
+        Grey("#");
+    }
+    usleep(500000);
+    // Close off progress bar
+    Grey("]\n");
+    // Give user a signal to continue
+    Yellow("Press enter to continue >>>");
+    // Pause will end once user presses enter
+    // Using std::cin and ::getline()
+    // Useless variable, I just needed it to activate std::cin
+    std::string catalyst;
+    std::getline(std::cin, catalyst);
+}
+
 int main() {
     // Code Goes Here
+    Pause();
 }
