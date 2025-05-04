@@ -117,7 +117,11 @@ std::string GetDecision(std::string question,
         // Get user input [WHITE]
         White();
         std::string choice;
-        std::getline(std::cin, choice);
+        // This if statement allows ctrl+d to actually exit the program
+        if (!std::getline(std::cin, choice)) {
+            // EXIT PROGRAM
+            std::exit(0);
+        }
         // Transform input for case insensitivity
         std::transform(choice.begin(), choice.end(), choice.begin(), ::toupper);
 
@@ -171,14 +175,14 @@ void DisplayTitle() {
 
 // INITIALIZE STATS
 // I was originally using [long int] but cpplint didn't like that
-int64_t gold = 100;
-int64_t population = 0;
+int64_t population = 100;
+int64_t gold = 0;
 int64_t power = 100;
 
 // Initalize a list to hold the flags for the user
 std::list<std::string> userFlags = {};
 
-// EVENT EVENT
+// EVENT CLASS
 class Event {
     // Every property is going to be public
     // Wierd indentation is for cpplint
@@ -283,6 +287,51 @@ void AddEvent(Event event) {
     eventList.push_back(event);
 }
 
+// Function that will only be called once
+// ################################################
+// Creates all the events
+// ################################################
+Event Intro() {
+    Event event;
+    event.name = "Introduction";
+    event.Synopsis = []() {
+        Blue("[ROYAL ADVISOR] Vexel\n");
+        Blue("Your Majesty, you have awakened at last.\n");
+        Blue("Forgive my intrusion, but time is of the essence.\n");
+        Blue("The colony awaits your command, and your wisdom is needed now more than ever.\n");
+    };
+
+    event.question = "Do you understand your role, my liege? (yes/no): ";
+    event.decisions = {"YES", "NO"};
+
+    event.Effect = [](std::string decision) {
+        Blue("[ROYAL ADVISOR] Vexel\n");
+        if (decision == "YES") {
+            Blue("Excellent, Your Majesty.\n");
+            Blue("Let's continue.\n");
+        } else if (decision == "NO") {
+            Blue("Ah, a jest, perhaps?\n");
+            Blue("No matter--your instincts shall guide you, as they always have.\n");
+        }
+        AddFlag("INTRO_COMPLETE");
+    };
+
+    event.inclusionFlags = {};
+    event.exclusionFlags = {"INTRO_COMPLETE"};
+    event.weight = -1;
+
+    return event;
+}
+
+// Function that will only be called once
+// ################################################
+// Creates all the events
+// ################################################
+void MakeEvents() {
+    AddEvent(Intro());
+}
+
+
 // Initialize variable for the current event
 Event currentEvent;
 
@@ -341,6 +390,8 @@ Event RandomEvent() {
             // Otherwise, increment weight heap by the event's weight
             weightHeap += event.weight;
         }
+        // Purely for linter purposes
+        return Event();
     }
 }
 
@@ -364,7 +415,7 @@ void ProcessEvent() {
     DisplayStats();
     // Display event name
     Orange();
-    printf("~~~ < %s > ~~~\n", currentEvent.name);
+    printf("~~~ < %s > ~~~\n", currentEvent.name.c_str());
     // Display event synopsis
     currentEvent.Synopsis();
     // Get player's decision
@@ -379,7 +430,7 @@ void ProcessEvent() {
     DisplayStats();
     // Display event name
     Orange();
-    printf("~~~ < %s > ~~~\n", currentEvent.name);
+    printf("~~~ < %s > ~~~\n", currentEvent.name.c_str());
     // Display effect
     currentEvent.Effect(decision);
     // Pause
@@ -395,6 +446,8 @@ void GameLoop() {
 }
 
 int main() {
+    // Make all events
+    MakeEvents();
     // Keep on looping indefinitely
     // Until user wins or loses
     while (true) {
