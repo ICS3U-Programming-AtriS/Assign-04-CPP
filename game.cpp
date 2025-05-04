@@ -261,6 +261,14 @@ class Event {
         int weight = 0;
 };
 
+// Function for adding a flag
+void AddFlag(std::string flagName) {
+    //Check if flag is not inside user_flags [Not really needed]
+    if (!IsElementInList(flagName, userFlags)) {
+        userFlags.push_back(flagName);
+    }
+}
+
 int main() {
     // Code Goes Here
     Pause();
