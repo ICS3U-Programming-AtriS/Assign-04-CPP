@@ -302,7 +302,7 @@ std::list<Event> GetUnlockedEvents() {
 }
 
 // Function that gets a random unlocked event
-Event randomEvent() {
+Event RandomEvent() {
     // Get list of available events
     std::list<Event> unlockedEvents = GetUnlockedEvents();
     // Initialize variable to hold the total sum of weights
@@ -386,7 +386,42 @@ void ProcessEvent() {
     Pause();
 }
 
+// GAME LOOP
+void GameLoop() {
+    // Set current event to a random unlocked event
+    currentEvent = RandomEvent();
+    // Process event + decision
+    ProcessEvent();
+}
+
 int main() {
-    // Code Goes Here
-    Pause();
+    // Keep on looping indefinitely
+    // Until user wins or loses
+    while (true) {
+        // GAME LOOP
+        GameLoop();
+        /* At the end of every game loop */
+        // Check if population is less than or equal to 0
+        if (population <= 0) {
+            // population <= 0 results in a loss
+            // LOSS
+            Red("Your population has been eradicated.\n");
+            Red("Your kingdom has fallen. The colony is no more.\n");
+            Red("This is all your fault.\n");
+            Red("You lost. \n");
+            // BREAK
+            break;
+        } else if (population >= 1000000000) {
+            // population >= 1_000_000_000 results in a win
+            // WIN
+            Green("The kindom is thriving.\n");
+            Green("No one dares to challenge you anymore.\n");
+            Green("The colony shall never fall as long as you rule.\n");
+            Green("You win. \n");
+            // BREAK
+            break;
+        }
+    }
+    // [ END ]
+    White("Thanks for Playing!\n");
 }
