@@ -166,6 +166,11 @@ void DisplayTitle() {
     Yellow("##################################\n");
 }
 
+// INITIALIZE STATS
+long int gold = 100;
+long int population = 0;
+long int power = 100;
+
 int main() {
     // Code Goes Here
     Pause();
