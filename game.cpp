@@ -287,10 +287,7 @@ void AddEvent(Event event) {
     eventList.push_back(event);
 }
 
-// Function that will only be called once
-// ################################################
-// Creates all the events
-// ################################################
+/* MAKE EVENTS */
 Event Intro() {
     Event event;
     event.name = "Introduction";
@@ -298,7 +295,8 @@ Event Intro() {
         Blue("[ROYAL ADVISOR] Vexel\n");
         Blue("Your Majesty, you have awakened at last.\n");
         Blue("Forgive my intrusion, but time is of the essence.\n");
-        Blue("The colony awaits your command, and your wisdom is needed now more than ever.\n");
+        Blue("The colony awaits your command, ");
+        Blue("and your wisdom is needed now more than ever.\n");
     };
 
     event.question = "Do you understand your role, my liege? (yes/no): ";
@@ -311,7 +309,8 @@ Event Intro() {
             Blue("Let's continue.\n");
         } else if (decision == "NO") {
             Blue("Ah, a jest, perhaps?\n");
-            Blue("No matter--your instincts shall guide you, as they always have.\n");
+            Blue("No matter--your instincts shall guide you,");
+            Blue(" as they always have.\n");
         }
         AddFlag("INTRO_COMPLETE");
     };
@@ -323,14 +322,125 @@ Event Intro() {
     return event;
 }
 
+Event Tutorial() {
+    Event event;
+    event.name = "The Three Pillars [Tutorial]";
+
+    event.Synopsis = []() {
+        Blue("[ROYAL ADVISOR] Vexel\n");
+        Blue("Before you proceed, Your Majesty, ");
+        Blue("allow me to speak of the three pillars that uphold your rule.\n");
+        Blue("\n");
+        Blue("First: *");
+        Purple("POPULATION");
+        Blue("*. Our strength in numbers. It is our greatest strength.\n");
+        Blue("This is the most important pillar ");
+        Blue("and must be upheld at all times\n");
+        Blue("Without it, our goal, is nothing but a lofty dream.\n");
+        Blue("\n");
+        Blue("Second: *");
+        Yellow("GOLD");
+        Blue("*. The foundation of our economy. ");
+        Blue("It funds our expansion, our armies,");
+        Blue(" and the future of the colony.\n");
+        Blue("\n");
+        Blue("Third: *");
+        Red("POWER");
+        Blue("*. The measure of your might. When battle comes,");
+        Blue(" it is this that determines victory or defeat.\n");
+        Blue("\n");
+        Blue("Every decision you make shall shape these forces. ");
+        Blue("Balance them wisely, ");
+        Blue("for the fate of the empire lies in your hands.\n");
+    };
+
+    event.question = "Shall we proceed, Your Majesty? (yes): ";
+    event.decisions = {"YES"};
+
+    event.Effect = [](std::string decision) {
+        Blue("[ROYAL ADVISOR] Vexel\n");
+        Blue("Very well. The colony awaits your wisdom.\n");
+        Blue("Here's a sum of gold to get you started. ");
+        Green("[+500 GOLD]\n");
+        gold += 500;
+        AddFlag("TUTORIAL_COMPLETE");
+    };
+
+    event.inclusionFlags = {"INTRO_COMPLETE"};
+    event.exclusionFlags = {"TUTORIAL_COMPLETE"};
+    event.weight = -1;
+
+    return event;
+}
+
+Event Encounter1() {
+    Event event;
+    event.name = "Overpowered Cloning Machine";
+    event.Synopsis = []() {
+        Purple("[Mad Scientist] Sinko\n");
+        Purple("Your Majesty, I invented a cloning machine.\n");
+        Purple("Would you like to use it? \n");
+        Purple("It only costs 10 gold to activate. \n");
+    };
+
+    event.question = "Would you like to use the cloning machine? (yes/no): ";
+    event.decisions = {"YES", "NO"};
+
+    event.Effect = [](std::string decision) {
+        if (decision == "YES") {
+            Grey("You insert a gold coin into the coin-shaped slot. ");
+            Red("[-10 GOLD] \n");
+            gold -= 10;
+            Grey("You enter the cloning machine. ");
+            Green("[+500000000 POPULATION] \n");
+            population += 500000000;
+        } else if (decision == "NO") {
+            Purple("[Mad Scientist] Sinko\n");
+            Purple("... \n");
+        }
+    };
+
+    event.inclusionFlags = {"TUTORIAL_COMPLETE"};
+    event.exclusionFlags = {};
+    event.weight = 3;
+    event.minGold = 10;
+    return event;
+}
+
+Event Encounter2() {
+    Event event;
+    event.name = "Uh-Oh";
+    event.Synopsis = []() {
+        Cyan("[King of the North] Great Ice Dragon\n");
+        Cyan("I am here to destroy your colony.\n");
+    };
+
+    event.question = "... (continue): ";
+    event.decisions = {"CONTINUE"};
+
+    event.Effect = [](std::string decision) {
+        Grey("The dragon sumberges your entire colony in a sea of ice. ");
+        Red();
+        printf("[-%i POPULATION] \n", population);
+        population -= population;
+    };
+
+    event.inclusionFlags = {"TUTORIAL_COMPLETE"};
+    event.exclusionFlags = {};
+    event.weight = 1;
+    return event;
+}
+
 // Function that will only be called once
 // ################################################
 // Creates all the events
 // ################################################
 void MakeEvents() {
     AddEvent(Intro());
+    AddEvent(Tutorial());
+    AddEvent(Encounter1());
+    AddEvent(Encounter2());
 }
-
 
 // Initialize variable for the current event
 Event currentEvent;
@@ -369,13 +479,16 @@ Event RandomEvent() {
         }
     }
 
-    // Generate a random float between 0 and sum of weights
-    srand((unsigned)time(NULL));  // RANDOM SEED
+    /* Generate a random float between 0 and sum of weights */
+    // Used rand_r() instead of rand() due to cpplint
+    // Generate seed
+    unsigned int seed = static_cast<unsigned int>(time(NULL));
     // Originally used (float) to cast but cpplint wanted me to use static_cast
     // Cast is needed, otherwise the division would evaluate to an integer
-    float randNum = (static_cast<float>(rand()) / RAND_MAX) * sumOfWeights;
+    float randNum = (static_cast<float>(rand_r(&seed)) / RAND_MAX);
+    randNum *= sumOfWeights;
     // Initialize a variable that accounts for the weight of previous events
-    int weightHeap;
+    int weightHeap = 0;
     // Loop through every unlocked event
     for (Event event : unlockedEvents) {
         // minimum boundary
@@ -390,9 +503,9 @@ Event RandomEvent() {
             // Otherwise, increment weight heap by the event's weight
             weightHeap += event.weight;
         }
-        // Purely for linter purposes
-        return Event();
     }
+    // Purely for linter purposes
+    return Event();
 }
 
 // Function that displays every stat
