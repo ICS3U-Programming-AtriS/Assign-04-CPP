@@ -4,7 +4,11 @@
 // Date: MAY 3, 2025
 // King of the Ants
 
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
+#include <list>
 #include <string>
 
 // Colors
@@ -88,6 +92,45 @@ void Orange(std::string msg = "") {
     std::cout << ORANGE;
     // PRINT MESSAGE
     std::cout << msg;
+}
+
+// Function thats check whether an element is in a list or not
+// I was originally planning to use a loop that checks over every element inside the list
+// but std::find() is way easier [I searched up how to do this]
+bool IsElementInList(std::string element, std::list<std::string> list) {
+    // list.end() does not represent the last element of a list
+    // it represents 1 after the last element of the list
+    // std::find() will return list.end() if it doesn't find element
+    return std::find(list.begin(), list.end(), element) != list.end();
+}
+
+// Function that gets the player's decision
+std::string GetDecision(std::string question, std::list<std::string> decisions) {
+    while (true) {
+        // Display question
+        Cyan(question);
+        // Get user input [WHITE]
+        White();
+        std::string choice;
+        std::getline(std::cin, choice);
+        // Transform input for case insensitivity
+        std::transform(choice.begin(), choice.end(), choice.begin(), ::toupper);
+
+        //  Check if the choice is in the list of possible decisions
+        if (IsElementInList(choice, decisions)) {
+            // Return the selected choice
+            return choice;
+        } else {
+            // Invalid Input
+            Red("Invalid decision, try again.\n");
+        }
+    }
+}
+
+// Function that clears the Terminal
+void ClearTerminal() {
+    // Clears the Terminal
+    std::system("clear");
 }
 
 int main() {
