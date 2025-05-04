@@ -11,6 +11,7 @@
 #include <iostream>
 #include <list>
 #include <string>
+#include <functional>
 
 // Colors
 const char BLACK[] = "\033[0;30m";  // BLACK
@@ -225,20 +226,23 @@ class Event {
         }
 
         // Function that displays the synopsis of the event
-        void synopsis() {
+        // std::function allows me to change the function easily
+        // when making new events
+        std::function<void()> Synopsis = []() {
             std::cout << "This is an event!" << std::endl;
-        }
+        };
 
         // The event question that is asked to the user after the synopsis
         std::string question = "Do you understand? (yes/no): ";
 
-        // List of possible decisions for the player to make
+        // LIST OF POSSIBLE DECISIONS FOR THE PLAYER TO MAKE
+        // ALL DECISIONS MUST BE UPPERCASE
         std::list<std::string> decisions = {"YES", "NO"};
 
-        // Function that displays the aftermath based on decision
-        void Effect(std::string decision) {
+        // Function that displays the aftermath
+        std::function<void(std::string)> Effect = [](std::string decision) {
             std::cout << "You picked " << decision << std::endl;
-        }
+        };
 
         // Flag Lists
         std::list<std::string> inclusionFlags;  // List of prerequisite flags
@@ -263,10 +267,20 @@ class Event {
 
 // Function for adding a flag
 void AddFlag(std::string flagName) {
-    //Check if flag is not inside user_flags [Not really needed]
+    // Check if flag is not inside user_flags [Not really needed]
     if (!IsElementInList(flagName, userFlags)) {
+        // Append it to the flag list
         userFlags.push_back(flagName);
     }
+}
+
+// Initialize list to hold all the events
+std::list<Event> eventList = {};
+
+// Function for adding event to event_list
+void AddEvent(Event event) {
+    // Append event to the event list
+    eventList.push_back(event);
 }
 
 int main() {
