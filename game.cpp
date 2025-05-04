@@ -283,6 +283,109 @@ void AddEvent(Event event) {
     eventList.push_back(event);
 }
 
+// Initialize variable for the current event
+Event currentEvent;
+
+std::list<Event> GetUnlockedEvents() {
+    // Initialize a list to hold the unlocked events
+    std::list<Event> unlockedEvents;
+    // Go through every event in event list
+    for (Event event : eventList) {
+        // Check if it is available
+        if (event.Available()) {
+            // If it is, append it to the list
+            unlockedEvents.push_back(event);
+        }
+    }
+    // Return the completed list
+    return unlockedEvents;
+}
+
+// Function that gets a random unlocked event
+Event randomEvent() {
+    // Get list of available events
+    std::list<Event> unlockedEvents = GetUnlockedEvents();
+    // Initialize variable to hold the total sum of weights
+    int sumOfWeights = 0;
+    // Loop through every unlocked event
+    // And add up all the weights
+    for (Event event : unlockedEvents) {
+        // A weight of -1 is a priority event
+        if (event.weight == -1) {
+            // Return it immediately
+            return event;
+        } else {
+            // Increment sum of weights by event's weight
+            sumOfWeights += event.weight;
+        }
+    }
+
+    // Generate a random float between 0 and sum of weights
+    srand((unsigned)time(NULL));  // RANDOM SEED
+    // Originally used (float) to cast but cpplint wanted me to use static_cast
+    // Cast is needed, otherwise the division would evaluate to an integer
+    float randNum = (static_cast<float>(rand()) / RAND_MAX) * sumOfWeights;
+    // Initialize a variable that accounts for the weight of previous events
+    int weightHeap;
+    // Loop through every unlocked event
+    for (Event event : unlockedEvents) {
+        // minimum boundary
+        int minBound = weightHeap;
+        // maximum boundary
+        int maxBound = weightHeap + event.weight;
+        // Check if the random number falls within the boundary
+        if ((minBound <= randNum) && (randNum <= maxBound)) {
+            // If it does, return the event
+            return event;
+        } else {
+            // Otherwise, increment weight heap by the event's weight
+            weightHeap += event.weight;
+        }
+    }
+}
+
+// Function that displays every stat
+void DisplayStats() {
+    Purple();
+    printf("POPULATION: %i, ", population);
+    Yellow();
+    printf("GOLD: %i, ", gold);
+    Red();
+    printf("POWER: %i \n", power);
+}
+
+// Function that manages the event
+void ProcessEvent() {
+    // Clear Terminal
+    ClearTerminal();
+    // Display title at top
+    DisplayTitle();
+    // Display stats
+    DisplayStats();
+    // Display event name
+    Orange();
+    printf("~~~ < %s > ~~~\n", currentEvent.name);
+    // Display event synopsis
+    currentEvent.Synopsis();
+    // Get player's decision
+    std::string decision = GetDecision(currentEvent.question,
+                            currentEvent.decisions);
+    /* Aftermath */
+    // Clear Terminal
+    ClearTerminal();
+    // Display title at top
+    DisplayTitle();
+    // Display stats
+    DisplayStats();
+    // Display event name
+    Orange();
+    printf("~~~ < %s > ~~~\n", currentEvent.name);
+    // Display effect
+    currentEvent.Effect(decision);
+    // Pause
+    Pause();
+}
+
 int main() {
     // Code Goes Here
     Pause();
