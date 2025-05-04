@@ -159,6 +159,13 @@ void Pause() {
     std::getline(std::cin, catalyst);
 }
 
+// Function that displays the title
+void DisplayTitle() {
+    Yellow("##################################\n");
+    Yellow("######## KING OF THE ANTS ########\n");
+    Yellow("##################################\n");
+}
+
 int main() {
     // Code Goes Here
     Pause();
