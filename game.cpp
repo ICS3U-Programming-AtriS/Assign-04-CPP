@@ -419,7 +419,7 @@ Event Encounter2() {
     event.decisions = {"CONTINUE"};
 
     event.Effect = [](std::string decision) {
-        Grey("The dragon sumberges your entire colony in a sea of ice. ");
+        Grey("The dragon submerges your entire colony in a sea of ice. ");
         Red();
         printf("[-%i POPULATION] \n", population);
         population -= population;
